@@ -48,10 +48,10 @@ public:
     reversed_order_nodes[0][index] = weight;
     for(int depth = 1; depth < reversed_order_nodes.size(); ++depth){
       index /= 2;
-      reversed_order_nodes[depth][index] = (
-        reversed_order_nodes[depth - 1][index * 2 + 0] + 
-        reversed_order_nodes[depth - 1][index * 2 + 1]
-      );
+      reversed_order_nodes[depth][index] = reversed_order_nodes[depth - 1][index * 2 + 0];
+      if(index * 2 + 1 < reversed_order_nodes[depth - 1].size()){
+        reversed_order_nodes[depth][index] += reversed_order_nodes[depth - 1][index * 2 + 1];
+      }
     }
   }
 

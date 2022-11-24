@@ -76,7 +76,8 @@ void test_weighted_random_element_sampler_1()
 
   for(int n: {1, 3, 127, 128, 129}){
     WeightedRandomElementSampler<int> sampler;
-    for(int i = 0; i < n; ++i) sampler.add(i, 1);
+    for(int i = 0; i < n; ++i) sampler.add(i, mt());
+    for(int i = 0; i < n; ++i) sampler.update_weight(i, 358.0);
 
     unordered_map<int, double> counts;
     const int T = 10000000;

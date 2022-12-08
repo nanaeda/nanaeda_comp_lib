@@ -1,3 +1,4 @@
+#include "../timer.cpp"
 #include "../weighted_random_element_sampler.cpp"
 #include <bits/stdc++.h>
 
@@ -86,10 +87,29 @@ void test_weighted_random_element_sampler_1()
   }
 }
 
+void test_timer()
+{
+  double begin = clock();
+  auto get_elapsed = [&]() 
+  {
+    return (clock() - begin) * 1e-6;
+  };
+
+  Timer timer;
+  double wait_time = 1;
+  while(get_elapsed() < wait_time);
+  double elapsed_0 = get_elapsed();
+  double elapsed_1 = timer.get_elapsed();
+
+  assert(abs(elapsed_0 - wait_time) < 1e-3);
+  assert(abs(elapsed_0 - elapsed_1) < 1e-3);
+}
+
 
 int main()
 {
   run_test(test_weighted_random_element_sampler_0);
   run_test(test_weighted_random_element_sampler_1);
+  run_test(test_timer);
 }
 

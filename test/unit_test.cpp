@@ -1,3 +1,4 @@
+#include "../numbered_files.cpp"
 #include "../timer.cpp"
 #include "../weighted_random_element_sampler.cpp"
 #include <bits/stdc++.h>
@@ -87,22 +88,112 @@ void test_weighted_random_element_sampler_1()
   }
 }
 
+double recur(int i)
+{
+  if(i == 0) return 1;
+  double res = 0;
+  for(int j = 0; j < i; ++j) res += recur(j);
+  return res;
+}
+
 void test_timer()
 {
+  Timer timer_0;
+
   double begin = clock();
   auto get_elapsed = [&]() 
   {
     return (clock() - begin) * 1e-6;
   };
 
-  Timer timer;
-  double wait_time = 1;
-  while(get_elapsed() < wait_time);
-  double elapsed_0 = get_elapsed();
-  double elapsed_1 = timer.get_elapsed();
+  Timer timer_1;
 
-  assert(abs(elapsed_0 - wait_time) < 1e-3);
-  assert(abs(elapsed_0 - elapsed_1) < 1e-3);
+  const double wait_time = 1.0;
+  while(timer_0.get_elapsed() < wait_time);
+
+  double elapsed_1 = timer_1.get_elapsed();
+  double medium = get_elapsed();
+  double elapsed_0 = timer_0.get_elapsed();
+  
+  assert(elapsed_1 - wait_time * 3e-3 < medium);
+  assert(elapsed_0 + wait_time * 3e-3 > medium);
+}
+
+void create_dir(string path)
+{
+  int status_0 = mkdir(path.c_str(), 777);
+  usleep(100000);
+}
+
+void test_numbered_files_0()
+{
+  const int n = 20;
+  const int m = 10;
+  {
+    NumberedFiles numbered_files("./numbered_files/main_0", "./numbered_files/tmp_0", 3);
+
+    {
+      vector<string> paths = numbered_files.get_latest_file_paths(100);
+      assert(paths.empty());
+    }
+
+    for(int i = 0; i < n; ++i){
+      NumberedFile f = numbered_files.create();
+      {
+        ofstream ofs(f.get_buffer_path());
+        ofs << i << endl;
+      }
+      f.flush();
+    }
+
+    {
+      vector<string> paths = numbered_files.get_latest_file_paths(m);
+
+      for(int i = 0; i < m; ++i){
+        ifstream ifs(paths[i]);
+        int value;
+        ifs >> value;
+        assert(value == n - 1 - i);
+      }
+    }
+
+    {
+      vector<string> paths = numbered_files.get_latest_file_paths(100);
+      assert(paths.size() == n);
+
+      for(int i = 0; i < n; ++i){
+        ifstream ifs(paths[i]);
+        int value;
+        ifs >> value;
+        assert(value == n - 1 - i);
+      }
+    }
+  }
+  
+  {
+    NumberedFiles numbered_files("./numbered_files/main_0", "./numbered_files/tmp_0_2", 3);
+
+    for(int i = 0; i < n; ++i){
+      NumberedFile f = numbered_files.create();
+      {
+        ofstream ofs(f.get_buffer_path());
+        ofs << i << endl;
+      }
+      f.flush();
+    }
+
+    {
+      vector<string> paths = numbered_files.get_latest_file_paths(100);
+      assert(paths.size() == n * 2);
+
+      for(int i = 0; i < n * 2; ++i){
+        ifstream ifs(paths[i]);
+        int value;
+        ifs >> value;
+        assert(value == (2 * n - 1 - i) % n);
+      }
+    }
+  }
 }
 
 
@@ -111,5 +202,6 @@ int main()
   run_test(test_weighted_random_element_sampler_0);
   run_test(test_weighted_random_element_sampler_1);
   run_test(test_timer);
+  run_test(test_numbered_files_0);
 }
 
